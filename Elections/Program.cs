@@ -3,9 +3,9 @@ using Elections.Interfaces;
 using Elections.Ballots;
 using Elections.Elections;
 using System.Diagnostics;
-using System.Reflection;
+using Elections.Elections.Exceptions;
 
-const int numVoters = 100_000;
+const int numVoters = 6;
 var voters = Voters.Create(numVoters, Candidates.Official);
 
 RunSimpleElection(voters);
@@ -37,6 +37,15 @@ static void RunElection<TElection, TBallot>(IReadOnlyList<TBallot> ballots)
         var election = new TElection();
         var winner = election.Run(ballots, Candidates.Official);
         Console.WriteLine(FormatMessage($"Winner is {winner?.Name}"));
+    }
+    catch (WinnerTiedException ex)
+    {
+        Console.WriteLine($"Error: the following winners were tied with {ex.TiedVotes} votes:");
+        ex.TiedWinners.Select(x => x.Name).ToList().ForEach(Console.WriteLine);
+    }
+    catch (NoMajorityException)
+    {
+        Console.WriteLine("Error: No majority could be determined");
     }
     catch (Exception ex)
     {
