@@ -1,4 +1,4 @@
-﻿using Elections.Interfaces;
+﻿using Elections.Voters.Interfaces;
 
 namespace Elections.Elections.Exceptions;
 

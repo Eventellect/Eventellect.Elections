@@ -1,4 +1,4 @@
-﻿namespace Elections.Interfaces;
+﻿namespace Elections.Voters.Interfaces;
 
 public interface IPerson
 {

@@ -1,13 +1,15 @@
-﻿using Elections.Elections.Exceptions;
-using Elections.Interfaces;
+﻿using Elections.Ballots.Interfaces;
+using Elections.Elections.Exceptions;
+using Elections.Elections.Interfaces;
+using Elections.Voters.Interfaces;
 
 namespace Elections.Elections;
 
-public class RankedChoiceElection : IElection<IRankedBallot>
+public class RankedChoiceElectionService : IElection<IRankedBallot>
 {
     private int passNum = 1;
 
-    public ICandidate Run(IReadOnlyList<IRankedBallot> ballots, IReadOnlyList<ICandidate> candidates)
+    public Task<ICandidate> Run(IReadOnlyList<IRankedBallot> ballots, IReadOnlyList<ICandidate> candidates)
     {
         //Console.WriteLine($"Pass {passNum++} - {candidates.Count} candidates");
 
@@ -55,7 +57,7 @@ public class RankedChoiceElection : IElection<IRankedBallot>
 
         if (highestRanked.VoteCount >= voterMajority)
         {
-            return highestRanked.Candidate!;
+            return Task.FromResult(highestRanked.Candidate! );
         }
 
         return Run(

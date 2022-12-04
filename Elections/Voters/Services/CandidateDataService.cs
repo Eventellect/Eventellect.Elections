@@ -1,22 +1,35 @@
-﻿using Elections.Interfaces;
+﻿using Elections.App;
+using Elections.Voters.Interfaces;
+using Elections.Voters.Records;
+using Microsoft.Extensions.Options;
 
-namespace Elections;
+namespace Elections.Voters.Services;
 
-public static class Candidates
+public class CandidateDataService : ICandidateDataService
 {
-    private static readonly IReadOnlyList<ICandidate> _official = GetNewYorkCityDemocraticMayoralPrimary().ToList();
-    private static readonly IReadOnlyList<ICandidate> _writeIns = GetSupremeCourtJustices().ToList();
-    private const int _writeInFactor = 1337;
+    private readonly int writeInFactor;
 
-    public static IReadOnlyList<ICandidate> Official => _official;
+    private IReadOnlyList<ICandidate>? official;
+    private IReadOnlyList<ICandidate>? writeIns;
 
-    public static ICandidate SelectRandom(IReadOnlyList<ICandidate> candidates)
+    public CandidateDataService(IOptions<Settings> config)
     {
-        var candidatePool = UseWriteIn() ? _writeIns : candidates;
+        writeInFactor = config.Value.WriteInFactor;
+    }
+
+    public IReadOnlyList<ICandidate> GetOfficial()
+        => official ??= GetNewYorkCityDemocraticMayoralPrimary().ToList();
+
+    public ICandidate SelectRandom(IReadOnlyList<ICandidate> candidates)
+    {
+        var candidatePool = UseWriteIn() ? GetWriteIns() : candidates;
         return candidatePool[Random.Shared.Next(candidatePool.Count)];
     }
 
-    private static IEnumerable<ICandidate> GetNewYorkCityDemocraticMayoralPrimary()
+    private IReadOnlyList<ICandidate> GetWriteIns() 
+        => writeIns ??= GetSupremeCourtJustices().ToList();
+
+    private IEnumerable<ICandidate> GetNewYorkCityDemocraticMayoralPrimary()
     {
         yield return new Candidate(10001, "Eric Adams");
         yield return new Candidate(10002, "Shaun Donovan");
@@ -28,7 +41,7 @@ public static class Candidates
         yield return new Candidate(10008, "Andrew Yang");
     }
 
-    private static IEnumerable<ICandidate> GetSupremeCourtJustices()
+    private IEnumerable<ICandidate> GetSupremeCourtJustices()
     {
         yield return new Candidate(int.MaxValue - 1, "John G. Roberts, Jr.");
         yield return new Candidate(int.MaxValue - 2, "Clarence Thomas");
@@ -41,11 +54,9 @@ public static class Candidates
         yield return new Candidate(int.MaxValue - 9, "Ketanji Brown Jackson");
     }
 
-    private static bool UseWriteIn()
+    private bool UseWriteIn()
     {
         var randomNumber = Random.Shared.Next();
-        return randomNumber % _writeInFactor == 0;
+        return randomNumber % writeInFactor == 0;
     }
-
-    private record Candidate(int Id, string Name) : ICandidate, IVoter;
 }

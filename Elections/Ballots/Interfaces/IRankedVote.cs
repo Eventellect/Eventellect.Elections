@@ -1,4 +1,4 @@
-﻿namespace Elections.Interfaces;
+﻿namespace Elections.Ballots.Interfaces;
 
 public interface IRankedVote : IVote
 {

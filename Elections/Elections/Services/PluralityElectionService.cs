@@ -1,11 +1,13 @@
-﻿using Elections.Elections.Exceptions;
-using Elections.Interfaces;
+﻿using Elections.Ballots.Interfaces;
+using Elections.Elections.Exceptions;
+using Elections.Elections.Interfaces;
+using Elections.Voters.Interfaces;
 
-namespace Elections.Elections;
+namespace Elections.Elections.Services;
 
-public class PluralityElection : IElection<ISingleVoteBallot>
+public class PluralityElectionService : IElection<ISingleVoteBallot>
 {
-    public ICandidate Run(IReadOnlyList<ISingleVoteBallot> ballots, IReadOnlyList<ICandidate> candidates)
+    public Task<ICandidate> Run(IReadOnlyList<ISingleVoteBallot> ballots, IReadOnlyList<ICandidate> candidates)
     {
         //ballots.Select(x => $"{x.Voter.Name} - {x.Vote.Candidate.Name}").ToList().ForEach(Console.WriteLine);
 
@@ -34,6 +36,6 @@ public class PluralityElection : IElection<ISingleVoteBallot>
             throw new WinnerTiedException(tiedWinners.Select(x => x.Candidate).ToList(), winner.VoteCount);
         }
 
-        return winner.Candidate;
+        return Task.FromResult(winner.Candidate);
     }
 }
