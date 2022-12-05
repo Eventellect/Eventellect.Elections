@@ -29,5 +29,3 @@ var provider = serviceScope.ServiceProvider;
 
 var mainService = provider.GetRequiredService<MainService>();
 await mainService.RunElectionsAsync();
-
-//await host.RunAsync();

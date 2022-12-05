@@ -9,8 +9,6 @@ public class PluralityElectionService : IElection<ISingleVoteBallot>
 {
     public Task<ICandidate> Run(IReadOnlyList<ISingleVoteBallot> ballots, IReadOnlyList<ICandidate> candidates)
     {
-        //ballots.Select(x => $"{x.Voter.Name} - {x.Vote.Candidate.Name}").ToList().ForEach(Console.WriteLine);
-
         var candidateRank = ballots
             .GroupBy(x => x.Vote.Candidate, (c, v) => new
             {
@@ -22,12 +20,10 @@ public class PluralityElectionService : IElection<ISingleVoteBallot>
             .Join(candidates, vote => vote.Candidate, candidate => candidate, (vote, _) => vote)
             .OrderByDescending(x => x.VoteCount);
 
-        //candidateRank.Select(x => $"{x.Candidate.Name} - {x.VoteCount}").ToList().ForEach(Console.WriteLine);
-
         var winner = candidateRank.FirstOrDefault();
         if (winner == null)
         {
-            throw new ArgumentNullException(nameof(winner));
+            throw new NoWinnerException();
         }
 
         var tiedWinners = candidateRank.Where(x => x.VoteCount == winner.VoteCount);

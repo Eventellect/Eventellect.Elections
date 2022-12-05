@@ -8,6 +8,8 @@ public class WinnerTiedException : Exception
 
     public int TiedVotes { get; }
 
+    public WinnerTiedException() : this(new List<ICandidate>(), -1) { }
+
     public WinnerTiedException(IReadOnlyList<ICandidate> tiedWinners, int tiedVotes)
     {
         TiedWinners = tiedWinners;

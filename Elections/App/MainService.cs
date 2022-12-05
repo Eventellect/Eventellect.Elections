@@ -24,8 +24,8 @@ public class MainService
         ILogger<MainService> logger,
         ICandidateDataService candidateDataService,
         IVoterDataService voterDataService,
-        IBallotFactory<IRankedBallot> rankedBallotFactory,
         IBallotFactory<ISingleVoteBallot> singleVoteBallotFactory,
+        IBallotFactory<IRankedBallot> rankedBallotFactory,
         IElection<ISingleVoteBallot> pluralityElectionService,
         IElection<IRankedBallot> rankedChoiceElectionService)
     {
@@ -46,8 +46,8 @@ public class MainService
         await RunElection(voters, rankedBallotFactory, rankedChoiceElectionService);
 
 
-        // Or we can run both simultaneously:
-        // (TODO: this code doesn't currently handle exceptions, such as WinnerTiedException)
+        // Or an example of running the elections simultaneously:
+        // (NOTE: this code doesn't currently handle exceptions (such as WinnerTiedException) and unit tests don't support this scenario)
 
         //var voters = voterDataService.Create(settings.NumVoters, candidateDataService.GetOfficial());
         //var candidates = candidateDataService.GetOfficial();
