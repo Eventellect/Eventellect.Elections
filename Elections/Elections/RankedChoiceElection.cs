@@ -12,28 +12,51 @@ public class RankedChoiceElection : IElection<IRankedBallot>
         if ((ballots != null && ballots.Count > 0)
             && (candidates != null && candidates.Count > 0))
         {
-            // Note: Initial 'brute force' approximation of winner, but does not consider ties.
-            var dictionary = new Dictionary<ICandidate, int>();
-            foreach( var ballot in ballots)
+            /*
+             * Notes:
+             *  - https://fairvote.org/our-reforms/ranked-choice-voting/
+             *  - Anyone with over 50% wins;
+             *  - If no winner, then drop the lowest candidate and re-count;
+             *  - Repeat until a winner is found;
+             */
+            var candidatesInRound = new Dictionary<ICandidate, int>( );
+            var candidatesRemoved = new List<ICandidate>();
+            var totalBallots = ballots.Count;
+            for (int round = 0; round <= 10; round++)
             {
-                foreach ( var vote in ballot.Votes )
+                foreach (var ballot in ballots)
                 {
-                    dictionary.TryGetValue(
-                        key: vote.Candidate,
-                        value: out var rankNumber
-                    );
-                    if (rankNumber == 0)
+                    if (ballot.Votes.Count > round)
                     {
-                        dictionary[vote.Candidate] = vote.Rank;
-                    }
-                    else
-                    {
-                        dictionary[vote.Candidate] =
-                            dictionary[vote.Candidate] += vote.Rank;
+                        var vote = ballot.Votes[round];
+                        if (!candidatesRemoved.Contains(vote.Candidate))
+                        {
+                            candidatesInRound.TryGetValue(
+                            key: vote.Candidate,
+                            value: out var numberOfVotes
+                        );
+                            candidatesInRound[vote.Candidate] = numberOfVotes + 1;
+                        }
                     }
                 }
+                var winner =
+                    candidatesInRound
+                        .OrderByDescending(x => x.Value)
+                        .FirstOrDefault();
+                if (winner.Value > (totalBallots / 2))
+                {
+                    return winner.Key;
+                }
+                var lowestRanked =
+                    candidatesInRound
+                        .OrderBy(x => x.Value)
+                        .FirstOrDefault();
+                candidatesInRound.Remove(lowestRanked.Key);
+                candidatesRemoved.Add(lowestRanked.Key);
             }
-            return dictionary.OrderBy(x => x.Value).FirstOrDefault().Key;
+
+            // Note: In case a winner is not found (although highly unlikely).
+            return null;
         }
         else
         {
