@@ -12,6 +12,7 @@ public class RankedChoiceElection : IElection<IRankedBallot>
         }
 
         var preferenceStep = 0;
+        var majority = (ballots.Count / 2) + 1;
         var candidatesDic = new Dictionary<ICandidate, int>();
         var candidatesEliminated = new List<ICandidate>();
 
@@ -34,7 +35,8 @@ public class RankedChoiceElection : IElection<IRankedBallot>
 
             var highestVotes = candidatesDic.OrderByDescending(candidate => candidate.Value).FirstOrDefault();
 
-            if (highestVotes.Value > ballots.Count / 2)
+
+            if (highestVotes.Value >= majority)
             {
                 return highestVotes.Key;
             }
